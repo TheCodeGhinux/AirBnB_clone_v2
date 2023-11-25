@@ -113,24 +113,59 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, arg):
+    def do_create(self, args):
         """Usage: create <class>
         To create a new class instance and print the class id.
         """
-        args = arg.split()
-        if len(args) == 0:
+        if not args:
             print("** class name missing **")
-        elif args[0] not in HBNBCommand.__classes:
-            print("** class doesn't exist **")
-        else:
-            new_instance = eval(args[0])()
-            new_instance.save()
-            print(new_instance.id)
+            return
 
+        parts = args.split(' ')
+        class_name = parts[0]
+
+        if class_name not in HBNBCommand.classes:
+            print("** class doesn't exist **")
+            return
+
+        params = {}
+
+        for param in parts[1:]:
+            key, value = param.split('=')
+
+            """This checks if the value starts and ends with double quotes"""
+            if value.startswith('"') and value.endswith('"'):
+                """ To Remove the quotes and replace underscores with spaces"""
+                value = value[1:-1].replace('_', ' ')
+            elif '.' in value:
+                """Check if value is a float"""
+                try:
+                    value = float(value)
+                except ValueError:
+                    print(f"Invalid value for {key}: {value}")
+                    return
+            elif value.isdigit():
+                """Check if value is a int"""
+                value = int(value)
+
+            """Adds key-value pair to dict"""
+            params[key] = value
+
+        """Creates a new instance """
+        new_inst = HBNBCommand.classes[class_name](**params)
+
+        # Save the new instance
+        storage.save()
+
+        print(new_inst.id)
+        storage.save()
+
+# Help information for the create method
     def help_create(self):
-        """ Help information for the create method """
-        print("Creates a class of any type")
-        print("[Usage]: create <className>\n")
+        """Help information for the create method."""
+        print("Creates an instance of a class with given parameters")
+        print("[Usage]: create <className> <param1>=<value1> <param2>=<value2> ...\n")
+
 
     def do_show(self, args):
         """ Method to show an individual object """
