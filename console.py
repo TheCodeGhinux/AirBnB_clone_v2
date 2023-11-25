@@ -117,50 +117,40 @@ class HBNBCommand(cmd.Cmd):
         """Usage: create <class>
         To create a new class instance and print the class id.
         """
+        try:
+            if not args:
+                raise SyntaxError()
+            args_list = args.split(' ')
+
+            kwargs = {}
+            for i in range(1, len(args_list)):
+                key, value = tuple(args_list[i].split("="))
+                if value[0] == '"':
+                    value = value.strip('"').replace("_", " ")
+                else:
+                    try:
+                        value = eval(value)
+                    except (SyntaxError, NameError):
+                        continue
+                kwargs[key] = value
+
+            if kwargs == {}:
+                new_inst = eval(args_list[0])()
+            else:
+                new_inst = eval(args_list[0])(**kwargs)
+                storage.new(new_inst)
+            print(new_inst.id)
+            new_inst.save()
+
+        except SyntaxError:
+            print("** class name missing **")
+        except NameError:
+            print("** class doesn't exist **")
         if not args:
             print("** class name missing **")
             return
 
-        parts = args.split(' ')
-        class_name = parts[0]
-
-        if class_name not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-
-        params = {}
-
-        for param in parts[1:]:
-            key, value = param.split('=')
-
-            """This checks if the value starts and ends with double quotes"""
-            if value.startswith('"') and value.endswith('"'):
-                """ To Remove the quotes and replace underscores with spaces"""
-                value = value[1:-1].replace('_', ' ')
-            elif '.' in value:
-                """Check if value is a float"""
-                try:
-                    value = float(value)
-                except ValueError:
-                    print(f"Invalid value for {key}: {value}")
-                    return
-            elif value.isdigit():
-                """Check if value is a int"""
-                value = int(value)
-
-            """Adds key-value pair to dict"""
-            params[key] = value
-
-        """Creates a new instance """
-        new_inst = HBNBCommand.classes[class_name](**params)
-
-        # Save the new instance
-        storage.save()
-
-        print(new_inst.id)
-        storage.save()
-
-# Help information for the create method
+    """Help information for the create method"""
     def help_create(self):
         """Help information for the create method."""
         print("Creates an instance of a class with given parameters")
@@ -173,7 +163,7 @@ class HBNBCommand(cmd.Cmd):
         c_name = new[0]
         c_id = new[2]
 
-        # guard against trailing args
+        """guard against trailing args"""
         if c_id and ' ' in c_id:
             c_id = c_id.partition(' ')[0]
 
@@ -238,7 +228,7 @@ class HBNBCommand(cmd.Cmd):
         print_list = []
 
         if args:
-            args = args.split(' ')[0]  # remove possible trailing args
+            args = args.split(' ')[0]
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
@@ -272,14 +262,14 @@ class HBNBCommand(cmd.Cmd):
         """ Updates a certain object with new info """
         c_name = c_id = att_name = att_val = kwargs = ''
 
-        # isolate cls from id/args, ex: (<cls>, delim, <id/args>)
+        """isolate cls from id/args, ex: (<cls>, delim, <id/args>)"""
         args = args.partition(" ")
         if args[0]:
             c_name = args[0]
-        else:  # class name not present
+        else:
             print("** class name missing **")
             return
-        if c_name not in HBNBCommand.classes:  # class name invalid
+        if c_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
