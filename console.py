@@ -154,7 +154,7 @@ class HBNBCommand(cmd.Cmd):
     def help_create(self):
         """Help information for the create method."""
         print("Creates an instance of a class with given parameters")
-        print("""[Usage]: create <className> 
+        print("""[Usage]: create <className>
               <param1>=<value1> <param2>=<value2> ...\n""")
 
     def do_show(self, args):
