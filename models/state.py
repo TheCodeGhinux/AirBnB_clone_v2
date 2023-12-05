@@ -5,7 +5,7 @@ from models.base_model import BaseModel
 
 class State(BaseModel):
     """ State class """
-     __tablename__ = "states"
+    __tablename__ = "states"
     name = Column(String(128), nullable=False)
     cities = relationship("City",  backref="state", cascade="delete")
 
