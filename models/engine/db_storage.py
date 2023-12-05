@@ -39,8 +39,7 @@ class DBStorage:
         if not DBStorage.__session:
             Session = sessionmaker(bind=DBStorage.__engine, autocommit=False,
                                    autoflush=False)
-            DBStorage.__session = scoped_session(sessionmaker(
-                bind=DBStorage.__engine, expire_on_commit=False))
+            DBStorage.__session = scoped_session(Session)
 
     def all(self, cls=None):
         """query on the current database session
