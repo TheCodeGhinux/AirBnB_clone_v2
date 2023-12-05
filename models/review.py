@@ -3,8 +3,18 @@
 from models.base_model import BaseModel
 
 
-class Review(BaseModel):
-    """ Review classto store review information """
-    place_id = ""
-    user_id = ""
-    text = ""
+class Review(BaseModel, Base):
+    """ Review class to store review information
+
+    Inherits from SQLAlchemy Base and links to the MySQL table reviews.
+
+    Attributes:
+        __tablename__ (str): Name of the Sql table.
+        text (sqlalchemy String): Description of review.
+        place_id (sqlalchemy String): Review Id.
+        user_id (sqlalchemy String): User id of reviewer.
+    """
+    __tablename__ = "reviews"
+    text = Column(String(1024), nullable=False)
+    place_id = Column(String(60), ForeignKey("places.id"), nullable=False)
+    user_id = Column(String(60), ForeignKey("users.id"), nullable=False)
