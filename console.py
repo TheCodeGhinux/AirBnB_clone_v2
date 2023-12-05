@@ -114,24 +114,18 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """Usage: create <class>
-        To create a new class instance and print the class id.
+    def do_create(self, line):
+        """Usage: create <class> <key 1>=<value 2> <key 2>=<value 2> ...
+        Create a new class instance with given keys/values and print its id.
         """
         try:
-            if not args:
+            if not line:
                 raise SyntaxError()
-
-            args_list = args.split(' ')
-            class_name = args_list[0]
-
-            if class_name not in self.classes:
-                print("** class doesn't exist **")
-                return
+            my_list = line.split(" ")
 
             kwargs = {}
-            for i in range(1, len(args_list)):
-                key, value = tuple(args_list[i].split("="))
+            for i in range(1, len(my_list)):
+                key, value = tuple(my_list[i].split("="))
                 if value[0] == '"':
                     value = value.strip('"').replace("_", " ")
                 else:
@@ -141,24 +135,13 @@ class HBNBCommand(cmd.Cmd):
                         continue
                 kwargs[key] = value
 
-            # Check if the object is already attached to a session
-            obj_id = kwargs.get("id")
-            existing_obj = self.storage.get(class_name, obj_id)
-
-            if existing_obj and object_session(existing_obj) is not None:
-                print("** instance already exists in the session **")
+            if kwargs == {}:
+                obj = eval(my_list[0])()
             else:
-                if existing_obj:
-                    # Update existing object with new attributes
-                    for key, value in kwargs.items():
-                        setattr(existing_obj, key, value)
-                    storage.save()
-                    print(existing_obj.id)
-                else:
-                    new_inst = self.classes[class_name](**kwargs)
-                    storage.new(new_inst)
-                    storage.save()
-                    print(new_inst.id)
+                obj = eval(my_list[0])(**kwargs)
+                storage.new(obj)
+            print(obj.id)
+            obj.save()
 
         except SyntaxError:
             print("** class name missing **")
