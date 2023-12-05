@@ -25,14 +25,22 @@ class DBStorage:
 
     def __init__(self):
         """Represents and creates a new DBStorage instance."""
-        self.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".
-                                      format(getenv("HBNB_MYSQL_USER"),
-                                             getenv("HBNB_MYSQL_PWD"),
-                                             getenv("HBNB_MYSQL_HOST"),
-                                             getenv("HBNB_MYSQL_DB")),
-                                      pool_pre_ping=True)
+        if not DBStorage.__engine:
+            DBStorage.__engine = create_engine("mysql+mysqldb://{}:{}@{}/{}".
+                                              format(getenv("HBNB_MYSQL_USER"),
+                                                     getenv("HBNB_MYSQL_PWD"),
+                                                     getenv("HBNB_MYSQL_HOST"),
+                                                     getenv("HBNB_MYSQL_DB")),
+                                              pool_pre_ping=True)
+
         if getenv("HBNB_ENV") == "test":
-            Base.metadata.drop_all(self.__engine)
+            Base.metadata.drop_all(DBStorage.__engine)
+
+        if not DBStorage.__session:
+            Session = sessionmaker(bind=DBStorage.__engine, autocommit=False,
+                                   autoflush=False)
+            DBStorage.__session = scoped_session(sessionmaker(
+                bind=DBStorage.__engine, expire_on_commit=False))
 
     def all(self, cls=None):
         """query on the current database session
