@@ -143,7 +143,7 @@ class HBNBCommand(cmd.Cmd):
 
             # Check if the object is already attached to a session
             obj_id = kwargs.get("id")
-            existing_obj = storage.get(class_name, obj_id)
+            existing_obj = storage.find_object_by_id(class_name, obj_id)
 
             if existing_obj and object_session(existing_obj) is not None:
                 print("** instance already exists in the session **")
