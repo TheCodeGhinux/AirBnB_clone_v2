@@ -45,12 +45,8 @@ class DBStorage:
         """
         new_obj = []
         if cls is None:
-            new_obj.extend(self.__session.query(State).all())
-            new_obj.extend(self.__session.query(City).all())
-            new_obj.extend(self.__session.query(User).all())
-            new_obj.extend(self.__session.query(Place).all())
-            new_obj.extend(self.__session.query(Review).all())
-            new_obj.extend(self.__session.query(Amenity).all())
+            classes_to_query = [State, City, User, Place, Review, Amenity]
+            new_obj.extend(self.__session.query(*classes_to_query).all())
         else:
             if isinstance(cls, str):
                 cls = eval(cls)
@@ -59,7 +55,8 @@ class DBStorage:
 
     def new(self, obj):
         """Add the object to the current database session"""
-        self.__session.add(obj)
+        if obj not in self.__session:
+            self.__session.add(obj)
 
     def save(self):
         """Commit all changes of the current database session."""
