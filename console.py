@@ -10,6 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from sqlalchemy.orm import object_session
 
 
 class HBNBCommand(cmd.Cmd):
@@ -120,7 +121,13 @@ class HBNBCommand(cmd.Cmd):
         try:
             if not args:
                 raise SyntaxError()
+
             args_list = args.split(' ')
+            class_name = args_list[0]
+
+            if class_name not in self.classes:
+                print("** class doesn't exist **")
+                return
 
             kwargs = {}
             for i in range(1, len(args_list)):
@@ -134,23 +141,30 @@ class HBNBCommand(cmd.Cmd):
                         continue
                 kwargs[key] = value
 
-            if kwargs == {}:
-                new_inst = eval(args_list[0])()
+            # Check if the object is already attached to a session
+            obj_id = kwargs.get("id")
+            existing_obj = storage.get(class_name, obj_id)
+
+            if existing_obj and object_session(existing_obj) is not None:
+                print("** instance already exists in the session **")
             else:
-                new_inst = eval(args_list[0])(**kwargs)
-                storage.new(new_inst)
-            print(new_inst.id)
-            new_inst.save()
+                if existing_obj:
+                    # Update existing object with new attributes
+                    for key, value in kwargs.items():
+                        setattr(existing_obj, key, value)
+                    storage.save()
+                    print(existing_obj.id)
+                else:
+                    new_inst = self.classes[class_name](**kwargs)
+                    storage.new(new_inst)
+                    storage.save()
+                    print(new_inst.id)
 
         except SyntaxError:
             print("** class name missing **")
         except NameError:
             print("** class doesn't exist **")
-        if not args:
-            print("** class name missing **")
-            return
 
-    """Help information for the create method"""
     def help_create(self):
         """Help information for the create method."""
         print("Creates an instance of a class with given parameters")
