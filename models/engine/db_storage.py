@@ -2,7 +2,6 @@
 """DBStorage engine."""
 from os import getenv
 from models.base_model import Base
-from models.base_model import BaseModel
 from models.amenity import Amenity
 from models.city import City
 from models.place import Place
@@ -10,9 +9,7 @@ from models.review import Review
 from models.state import State
 from models.user import User
 from sqlalchemy import create_engine
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 class DBStorage:
@@ -46,17 +43,18 @@ class DBStorage:
             key = <class name>.<obj id>
             value = object
         """
+        new_obj = []
         if cls is None:
-            new_obj = self.__session.query(State).all()
+            new_obj.extend(self.__session.query(State).all())
             new_obj.extend(self.__session.query(City).all())
             new_obj.extend(self.__session.query(User).all())
             new_obj.extend(self.__session.query(Place).all())
             new_obj.extend(self.__session.query(Review).all())
             new_obj.extend(self.__session.query(Amenity).all())
         else:
-            if type(cls) == str:
+            if isinstance(cls, str):
                 cls = eval(cls)
-            new_obj = self.__session.query(cls)
+            new_obj.extend(self.__session.query(cls).all())
         return {"{}.{}".format(type(o).__name__, o.id): o for o in new_obj}
 
     def new(self, obj):
@@ -75,11 +73,9 @@ class DBStorage:
     def reload(self):
         """Create all tables in the database"""
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        self.__session = scoped_session(Session)
 
     def close(self):
         """Close SQLAlchemy session."""
-        self.__session.close()
+        self.__session.remove()
