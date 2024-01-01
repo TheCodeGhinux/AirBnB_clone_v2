@@ -4,8 +4,8 @@
 web application must be listening on 0.0.0.0
 port 5000
 Routes:
-        /pyhton/<text>: display “Python ”, followed by the
-        value of the text variable
+        /pyhton/<text>: display “Python ”, followed
+        by the value of the text variable
 """
 
 
