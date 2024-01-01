@@ -4,7 +4,8 @@
 web application must be listening on 0.0.0.0
 port 5000
 Routes:
-        /hbnb : Displays Hello HBNB
+        /c/<text>:  display “C ” followed by the
+        value of the text variable
 """
 
 
@@ -22,7 +23,7 @@ def hello_hbnb():
 @app.route("/hbnb", strict_slashes=False)
 def hbnb():
     """Displays “Hello HBNB!”"""
-    return "HBNB!"
+    return "HBNB"
 
 
 if __name__ == "__main__":
