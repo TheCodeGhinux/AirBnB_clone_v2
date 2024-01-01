@@ -3,7 +3,7 @@
 
 web application must be listening on 0.0.0.0
 port 5000
-Routes: 
+Routes:
         /hbnb : Displays Hello HBNB
 """
 
@@ -23,6 +23,7 @@ def hello_hbnb():
 def hbnb():
     """Displays “Hello HBNB!”"""
     return "HBNB!"
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
